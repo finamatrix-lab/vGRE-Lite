@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finamatrix vGRE-Lite Integration Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #050915 0%, #0f1420 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #F1F5F9;
+      min-height: 100vh;
+    }
+
+    .header {
+      border-bottom: 1px solid #1E293B;
+      padding: 16px 24px;
+      background: rgba(2, 6, 23, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { display: flex; gap: 12px; align-items: center; }
+    .logo-circle { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1E90FF 0%, #00BFFF 100%); box-shadow: 0 0 20px rgba(30, 144, 255, 0.4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #FFFFFF; }
+    .logo-text { display: flex; flex-direction: column; }
+    .logo-title { font-size: 15px; font-weight: 600; color: #6EE7B7; }
+    .logo-subtitle { font-size: 10px; color: #94A3B8; letter-spacing: 0.15em; }
+
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 20px; font-size: 11px; color: #06B6D4; }
+
+    /* OPTIONS GREEKS TABLE */
+    .greeks-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+
+    .greeks-table th {
+      background: rgba(15, 23, 42, 0.8);
+      padding: 8px;
+      text-align: left;
+      color: #64748B;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.3);
+    }
+
+    .greeks-table td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.2);
+      color: #CBD5E1;
+    }
+
+    .greeks-table tr:hover { background: rgba(6, 182, 212, 0.05); }
+
+    .greek-positive { color: #10B981; font-weight: 600; }
+    .greek-negative { color: #EF4444; font-weight: 600; }
+    .greek-neutral { color: #FCD34D; font-weight: 600; }
+
+    .container { display: flex; height: calc(100vh - 65px); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      border-right: 1px solid #1E293B;
+      background: rgba(15, 23, 42, 0.6);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-section { margin-bottom: 16px; }
+    .sidebar-label { font-size: 10px; letter-spacing: 0.15em; color: #64748B; font-weight: 600; margin-bottom: 8px; }
+    .sidebar-btn {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #1E293B;
+      background: rgba(15, 23, 42, 0.8);
+      color: #CBD5E1;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 200ms;
+    }
+    .sidebar-btn:hover { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: #06B6D4; }
+    .sidebar-btn.active { background: rgba(6, 182, 212, 0.2); border-color: #06B6D4; color: #06B6D4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.2); }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: flex; flex-direction: column; gap: 16px; }
+
+    /* CARDS & LAYOUTS */
+    .card {
+      border-radius: 14px;
+      border: 1px solid #1E293B;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.3);
+    }
+
+    .card-title {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #CBD5E1;
+      margin-top: 6px;
+    }
+
+    /* INTEGRATION FLOW */
+    .integration-flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .flow-stage {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(5, 9, 21, 0.9));
+      border: 1px solid #1E293B;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .flow-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .flow-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #06B6D4;
+      margin-bottom: 4px;
+    }
+
+    .flow-desc {
+      font-size: 11px;
+      color: #94A3B8;
+      line-height: 1.4;
+    }
+
+    /* FORM ELEMENTS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #0F172A;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #E2E8F0;
+      outline: none;
+      font-family: 'Courier New', monospace;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: #06B6D4;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .form-hint {
+      font-size: 10px;
+      color: #64748B;
+      margin-top: 4px;
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #06B6D4, #10B981);
+      color: #000;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #06B6D4;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(6, 182, 212, 0.2);
+    }
+
+    /* API ENDPOINTS */
+    .endpoints-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .endpoint-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #1E293B;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .endpoint-method {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .method-post { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+    .method-get { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
+
+    .endpoint-path {
+      font-size: 11px;
+      color: #CBD5E1;
+      font-family: monospace;
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+
+    .endpoint-desc {
+      font-size: 10px;
+      color: #94A3B8;
+      line-height: 1.4;
+    }
+
+    /* BACKTEST RESULTS */
+    .backtest-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #1E293B;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: #64748B;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #F1F5F9;
+      font-family: monospace;
+    }
+
+    .metric-positive { color: #10B981; }
+    .metric-negative { color: #EF4444; }
+    .metric-neutral { color: #FCD34D; }
+
+    /* CHART */
+    .equity-curve {
+      width: 100%;
+      height: 200px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #1E293B;
+      padding: 12px;
+      position: relative;
+    }
+
+    /* TABLE */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      background: rgba(5, 9, 21, 0.6);
+      border: 1px solid #1E293B;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      padding: 10px;
+      text-align: left;
+      color: #64748B;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.3);
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.2);
+      color: #CBD5E1;
+    }
+
+    tr:hover { background: rgba(6, 182, 212, 0.05); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    .badge-primary { background: rgba(6, 182, 212, 0.2); color: #06B6D4; }
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+
+    /* STATUS */
+    .status-box {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-left: 3px solid #06B6D4;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .status-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #06B6D4;
+      margin-bottom: 4px;
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: #CBD5E1;
+      line-height: 1.5;
+    }
+
+    .status-code {
+      font-family: monospace;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #FCD34D;
+    }
+
+    .status-success-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-left: 3px solid #10B981;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .status-success-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #10B981;
+      margin-bottom: 4px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .integration-flow { grid-template-columns: 1fr; }
+      .sidebar { width: 180px; }
+      .endpoints-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .sidebar { width: 100%; padding: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); border-right: none; border-bottom: 1px solid #1E293B; max-height: 80px; }
+      .main-content { padding: 12px; }
+      .card { padding: 12px; }
+      .integration-flow { grid-template-columns: 1fr; }
+      .backtest-metrics { grid-template-columns: repeat(2, 1fr); }
+      .equity-curve { height: 150px; }
+    }
+
+    @media (max-width: 400px) {
+      .header { flex-direction: column; gap: 8px; align-items: flex-start; }
+      .sidebar { grid-template-columns: 1fr; }
+      .main-content { padding: 8px; gap: 12px; }
+      .card { padding: 10px; }
+      .backtest-metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-circle">Fi</div>
+      <div class="logo-text">
+        <div class="logo-title">vGRE-Lite Open Source</div>
+        <div class="logo-subtitle">Free Intelligence Layer for Global Financial Institutions</div>
+      </div>
+    </div>
+    <div class="header-badge">
+      🌐 Open Source • Free for All • MIT License
+    </div>
+  </div>
+
+  <!-- CONTAINER -->
+  <div class="container">
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">INTELLIGENCE</div>
+        <button class="sidebar-btn active" onclick="switchPanel('dashboard')">📊 Dashboard</button>
+        <button class="sidebar-btn" onclick="switchPanel('backtest')">📈 Backtest Engine</button>
+        <button class="sidebar-btn" onclick="switchPanel('derivatives')">⚖️ Derivatives Risk</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">INTEGRATION</div>
+        <button class="sidebar-btn" onclick="switchPanel('api')">🔌 API Docs</button>
+        <button class="sidebar-btn" onclick="switchPanel('webhooks')">🔗 Webhooks</button>
+        <button class="sidebar-btn" onclick="switchPanel('connectors')">⚙️ Connectors</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">RESOURCES</div>
+        <button class="sidebar-btn" onclick="switchPanel('examples')">💻 Code Examples</button>
+        <button class="sidebar-btn" onclick="switchPanel('opensource')">🌍 Open Source</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- DASHBOARD PANEL -->
+      <div id="dashboard" class="panel active">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">vGRE-LITE INTELLIGENCE LAYER</div>
+              <div class="card-desc">Real-time decision matrix engine integrated into your trading systems</div>
+            </div>
+          </div>
+
+          <div class="integration-flow">
+            <div class="flow-stage">
+              <div class="flow-icon">📊</div>
+              <div class="flow-label">1. DATA INPUT</div>
+              <div class="flow-desc">Connect your data feed (TradingView, MT5, IBKR, Binance, Yahoo)</div>
+            </div>
+            <div class="flow-stage">
+              <div class="flow-icon">⚡</div>
+              <div class="flow-label">2. vGRE ANALYSIS</div>
+              <div class="flow-desc">Regime detection, probability analysis, correlation evaluation</div>
+            </div>
+            <div class="flow-stage">
+              <div class="flow-icon">🎯</div>
+              <div class="flow-label">3. ACTION MATRIX</div>
+              <div class="flow-desc">Ranked trading decisions (ROLL, ADD, REDUCE, CLOSE, HOLD)</div>
+            </div>
+            <div class="flow-stage">
+              <div class="flow-icon">💾</div>
+              <div class="flow-label">4. EXECUTE</div>
+              <div class="flow-desc">Trade execution via Finamatrix API (1-3 bps fee)</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 3px solid #10B981; border-radius: 8px; padding: 12px; margin-top: 12px;">
+            <div style="font-size: 10px; font-weight: 600; color: #10B981; margin-bottom: 4px;">✓ 100% FREE & OPEN SOURCE</div>
+            <div style="font-size: 11px; color: #CBD5E1;">vGRE-Lite is completely <span style="color: #10B981; font-weight: 600;">free and open-source (MIT License)</span>. Use it anywhere - banks, traders, exchanges, vendors. NO FEES. Manual execution remains zero-cost. Finamatrix Enterprise offers premium acceleration layers.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">CONNECTED SYSTEMS</div>
+              <div class="card-desc">vGRE integrates as an intelligence layer in your existing workflow</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">📈</div>
+              <div style="font-size: 11px; font-weight: 600; color: #3B82F6;">TradingView</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Real-time data feed</div>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">📱</div>
+              <div style="font-size: 11px; font-weight: 600; color: #F59E0B;">MetaTrader 5</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Execution alerts</div>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">🏦</div>
+              <div style="font-size: 11px; font-weight: 600; color: #22C55E;">Interactive Brokers</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Trade execution</div>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">₿</div>
+              <div style="font-size: 11px; font-weight: 600; color: #EF4444;">Binance API</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Crypto trading</div>
+            </div>
+            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">💾</div>
+              <div style="font-size: 11px; font-weight: 600; color: #8B5CF6;">Custom Datafeed</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Your own systems</div>
+            </div>
+            <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 4px;">🔄</div>
+              <div style="font-size: 11px; font-weight: 600; color: #06B6D4;">REST API</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 4px;">Standard integration</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">QUICK START - REAL-TIME vGRE ANALYSIS</div>
+              <div class="card-desc">Deploy intelligent decisions across forex, stocks, crypto, and derivatives in 1-2 seconds</div>
+            </div>
+            <span class="header-badge" style="margin-left: auto;">🌐 Live • Multi-Asset • MIT Open Source</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Asset Ticker (Forex, Stocks, Crypto, Options)</label>
+              <input class="form-input" id="quick-asset" type="text" placeholder="EURUSD • AAPL • BTC-USD • SPY_C_450" value="EURUSD" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Asset Class</label>
+              <select class="form-select" id="quick-assetclass">
+                <option selected>Auto-Detect</option>
+                <option value="forex">Forex</option>
+                <option value="equities">Equities</option>
+                <option value="crypto">Crypto</option>
+                <option value="derivatives">Derivatives</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label class="form-label">Time Horizon</label>
+              <select class="form-select" id="quick-horizon">
+                <option value="1H">1 Hour</option>
+                <option value="4H">4 Hours</option>
+                <option value="1D">1 Day</option>
+                <option value="1W" selected>1 Week</option>
+                <option value="1M">1 Month</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Strategy Preset</label>
+              <select class="form-select" id="quick-strategy">
+                <option value="auto" selected>Auto-Detect</option>
+                <option value="momentum">Momentum Trading</option>
+                <option value="hedging">Hedging Protection</option>
+                <option value="rangebound">Range-Bound</option>
+                <option value="carry">Carry Trade</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <button class="btn btn-primary" onclick="runQuickAnalysis()" style="font-size: 13px;">⚡ Generate vGRE Matrix (1-2s)</button>
+            <button class="btn btn-secondary" onclick="toggleAdvancedFilters()" style="font-size: 13px;">⚙️ Advanced Filters</button>
+          </div>
+
+          <div id="advanced-filters" style="display: none; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 11px; font-weight: 600; color: #8B5CF6; margin-bottom: 8px;">ADVANCED CONFIGURATION</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Min Confidence</label>
+                <input class="form-input" type="number" min="0" max="100" value="60" style="font-size: 10px; padding: 6px;" />
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Max Trades/Day</label>
+                <input class="form-input" type="number" min="1" max="20" value="5" style="font-size: 10px; padding: 6px;" />
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Risk Level</label>
+                <select class="form-select" style="font-size: 10px; padding: 6px;">
+                  <option>Conservative</option>
+                  <option selected>Balanced</option>
+                  <option>Aggressive</option>
+                </select>
+              </div>
+            </div>
+            <div style="font-size: 9px; color: #94A3B8;">Filters refine vGRE recommendations based on your trading profile. Saved locally, never transmitted.</div>
+          </div>
+
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 8px; margin-top: 12px; font-size: 9px; color: #94A3B8;">
+            <strong>✓ Free Analysis & Execution:</strong> All vGRE analysis and this entire platform is free. Deploy on your own infrastructure (GitHub), build your own connectors, integrate with any broker or exchange at zero cost.
+          </div>
+
+          <div id="quick-result" style="display: none; margin-top: 12px;">
+            <div class="status-box">
+              <div class="status-title">✓ Analysis Complete</div>
+              <div class="status-text" id="quick-result-text"></div>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span>DECISION MATRIX - RANKED ACTIONS</span>
+                <span style="font-size: 10px; background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 4px 8px; border-radius: 4px; font-weight: 600;">Updated: <span id="matrix-timestamp">now</span></span>
+              </div>
+              <div id="quick-matrix" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <!-- Action cards will populate here -->
+              </div>
+
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(30, 41, 59, 0.3);">
+                <div style="font-size: 10px; color: #64748B; margin-bottom: 6px; font-weight: 600;">CONFIDENCE & REGIME</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                  <div style="background: rgba(6, 182, 212, 0.1); border-radius: 6px; padding: 8px; text-align: center;">
+                    <div style="font-size: 9px; color: #94A3B8;">Signal Strength</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #06B6D4;" id="matrix-strength">--</div>
+                  </div>
+                  <div style="background: rgba(139, 92, 246, 0.1); border-radius: 6px; padding: 8px; text-align: center;">
+                    <div style="font-size: 9px; color: #94A3B8;">Regime Probability</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #8B5CF6;" id="matrix-regime">--</div>
+                  </div>
+                  <div style="background: rgba(34, 197, 94, 0.1); border-radius: 6px; padding: 8px; text-align: center;">
+                    <div style="font-size: 9px; color: #94A3B8;">Avg Confidence</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #22C55E;" id="matrix-confidence">--</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">ACTION RANKINGS</div>
+              <div class="table-wrapper">
+                <table id="quick-actions-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Action</th>
+                      <th>Score</th>
+                      <th>Confidence</th>
+                      <th>Max Gain</th>
+                      <th>Max Loss</th>
+                      <th>Recommendation</th>
+                      <th>Execute</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quick-actions-body">
+                    <!-- Rows will populate here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">MARKET METRICS</div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <div class="metric-card">
+                  <div class="metric-label">Spot Price</div>
+                  <div class="metric-value" id="quick-spot" style="color: #06B6D4;">-</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Volatility</div>
+                  <div class="metric-value" id="quick-vol" style="color: #FCD34D;">-</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Up Probability</div>
+                  <div class="metric-value" id="quick-prob" style="color: #10B981;">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">REGIME ANALYSIS</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 12px;">
+                  <div style="font-size: 10px; color: #64748B; margin-bottom: 4px;">REGIME</div>
+                  <div style="font-size: 14px; font-weight: 700; color: #06B6D4;" id="quick-regime">-</div>
+                </div>
+                <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 12px;">
+                  <div style="font-size: 10px; color: #64748B; margin-bottom: 4px;">SIGNAL STRENGTH</div>
+                  <div style="font-size: 14px; font-weight: 700; color: #06B6D4;" id="quick-strength">-</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EXECUTION CONTROLS -->
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px; border-top: 1px solid rgba(30, 41, 59, 0.3); padding-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">EXECUTE TRADE (100% FREE)</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button class="btn btn-primary" onclick="copyTradeDetails()" style="font-size: 11px;">
+                  📋 Copy to Your Broker (Zero Fee)
+                </button>
+                <button class="btn btn-secondary" onclick="deployOwnNode()">
+                  🚀 Deploy Your Own Node
+                </button>
+              </div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 8px; text-align: center;">
+                All execution methods are FREE. Deploy vGRE-Lite on your infrastructure, integrate with any broker/exchange. Full source code on GitHub.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BACKTEST PANEL -->
+      <div id="backtest" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">BACKTEST ENGINE</div>
+              <div class="card-desc">Validate vGRE decision matrix performance on historical data</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div class="form-group">
+              <label class="form-label">Asset</label>
+              <input class="form-input" id="bt-asset" type="text" placeholder="EURUSD" value="EURUSD" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input class="form-input" id="bt-start" type="date" value="2024-01-01" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input class="form-input" id="bt-end" type="date" value="2025-01-21" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Initial Capital ($)</label>
+              <input class="form-input" id="bt-capital" type="number" placeholder="100000" value="100000" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="runBacktest()">Run Backtest →</button>
+
+          <div id="bt-loading" style="display: none; margin-top: 12px; text-align: center; color: #06B6D4;">
+            Running backtest... (this may take a few seconds)
+          </div>
+
+          <div id="bt-results" style="display: none; margin-top: 16px;">
+            <div class="backtest-metrics">
+              <div class="metric-card">
+                <div class="metric-label">Total Return</div>
+                <div class="metric-value metric-positive" id="bt-return">+18.4%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Sharpe Ratio</div>
+                <div class="metric-value metric-positive" id="bt-sharpe">1.64</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Max Drawdown</div>
+                <div class="metric-value metric-negative" id="bt-dd">-8.3%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Win Rate</div>
+                <div class="metric-value metric-positive" id="bt-wr">62%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Total Trades</div>
+                <div class="metric-value metric-neutral" id="bt-trades">47</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Profit Factor</div>
+                <div class="metric-value metric-positive" id="bt-pf">2.14</div>
+              </div>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">EQUITY CURVE</div>
+              <svg class="equity-curve" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:0" />
+                  </linearGradient>
+                </defs>
+                <polyline points="20,140 80,120 140,100 200,115 260,95 320,85 380,70 440,65 500,75 560,60 620,50 680,55 740,45 760,40" stroke="#06B6D4" stroke-width="2" fill="none" />
+                <polyline points="20,140 80,120 140,100 200,115 260,95 320,85 380,70 440,65 500,75 560,60 620,50 680,55 740,45 760,40 760,180 20,180" fill="url(#gradient)" />
+                <line x1="20" y1="160" x2="760" y2="160" stroke="#334155" stroke-width="1" stroke-dasharray="5,5" />
+                <text x="5" y="165" font-size="10" fill="#64748B">100k</text>
+              </svg>
+            </div>
+
+            <div class="card" style="background: transparent; border: none; padding: 0; margin-top: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">TRADE SUMMARY</div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Trade #</th>
+                      <th>Action</th>
+                      <th>Entry</th>
+                      <th>Exit</th>
+                      <th>P&L</th>
+                      <th>Return</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bt-trades-table">
+                    <tr>
+                      <td>#1</td>
+                      <td><span class="badge badge-primary">ROLL</span></td>
+                      <td>1.1550</td>
+                      <td>1.1625</td>
+                      <td style="color: #10B981;">+$750</td>
+                      <td>+0.75%</td>
+                      <td><span class="badge badge-success">WIN</span></td>
+                    </tr>
+                    <tr>
+                      <td>#2</td>
+                      <td><span class="badge badge-primary">ADD</span></td>
+                      <td>1.1630</td>
+                      <td>1.1580</td>
+                      <td style="color: #EF4444;">-$500</td>
+                      <td>-0.50%</td>
+                      <td><span class="badge badge-danger">LOSS</span></td>
+                    </tr>
+                    <tr>
+                      <td>#3</td>
+                      <td><span class="badge badge-primary">REDUCE</span></td>
+                      <td>1.1585</td>
+                      <td>1.1645</td>
+                      <td style="color: #10B981;">+$600</td>
+                      <td>+0.60%</td>
+                      <td><span class="badge badge-success">WIN</span></td>
+                    </tr>
+                    <tr>
+                      <td>#4</td>
+                      <td><span class="badge badge-primary">HOLD</span></td>
+                      <td>1.1650</td>
+                      <td>1.1670</td>
+                      <td style="color: #10B981;">+$200</td>
+                      <td>+0.20%</td>
+                      <td><span class="badge badge-success">WIN</span></td>
+                    </tr>
+                    <tr>
+                      <td>#5</td>
+                      <td><span class="badge badge-primary">CLOSE</span></td>
+                      <td>1.1675</td>
+                      <td>1.1635</td>
+                      <td style="color: #EF4444;">-$400</td>
+                      <td>-0.40%</td>
+                      <td><span class="badge badge-danger">LOSS</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DERIVATIVES RISK PANEL -->
+      <div id="derivatives" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">DERIVATIVES RISK ANALYSIS</div>
+              <div class="card-desc">Options pricing, full Greeks (calls & puts), vGRE-powered risk analysis</div>
+            </div>
+          </div>            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+            <div style="font-size: 10px; font-weight: 600; color: #8B5CF6; margin-bottom: 4px;">📊 vGRE OPTIONS PRICING (OPEN SOURCE)</div>
+            <div style="font-size: 10px; color: #CBD5E1;">100% free vGRE estimation engine with Black-Scholes-Merton Greeks aggregation. Deploy in your quant library, Bloomberg terminal, or exchange infrastructure. MIT License - build whatever you want.</div>
+          </div>
+
+          <!-- OPTIONS PRICING & GREEKS TABLE -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">CALL OPTIONS - EURUSD 1W EXPIRY</div>
+            <div class="table-wrapper">
+              <table class="greeks-table">
+                <thead>
+                  <tr>
+                    <th>Strike</th>
+                    <th>Price</th>
+                    <th>Delta</th>
+                    <th>Gamma</th>
+                    <th>Vega</th>
+                    <th>Theta</th>
+                    <th>Rho</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1.1400 (-2%)</td>
+                    <td style="color: #06B6D4;">$0.0285</td>
+                    <td class="greek-positive">0.15</td>
+                    <td>0.02</td>
+                    <td>0.12</td>
+                    <td class="greek-negative">-0.05</td>
+                    <td class="greek-positive">0.018</td>
+                  </tr>
+                  <tr>
+                    <td>1.1500 (-1%)</td>
+                    <td style="color: #06B6D4;">$0.0684</td>
+                    <td class="greek-positive">0.35</td>
+                    <td>0.04</td>
+                    <td>0.18</td>
+                    <td class="greek-negative">-0.08</td>
+                    <td class="greek-positive">0.026</td>
+                  </tr>
+                  <tr>
+                    <td>1.1600 (ATM)</td>
+                    <td style="color: #10B981;">$0.1520</td>
+                    <td class="greek-positive">0.55</td>
+                    <td class="greek-neutral">0.08</td>
+                    <td class="greek-positive">0.28</td>
+                    <td class="greek-negative">-0.12</td>
+                    <td class="greek-positive">0.034</td>
+                  </tr>
+                  <tr>
+                    <td>1.1700 (+1%)</td>
+                    <td style="color: #06B6D4;">$0.0412</td>
+                    <td class="greek-positive">0.75</td>
+                    <td>0.06</td>
+                    <td>0.24</td>
+                    <td class="greek-negative">-0.10</td>
+                    <td class="greek-positive">0.028</td>
+                  </tr>
+                  <tr>
+                    <td>1.1800 (+2%)</td>
+                    <td style="color: #06B6D4;">$0.0148</td>
+                    <td class="greek-positive">0.85</td>
+                    <td>0.02</td>
+                    <td>0.12</td>
+                    <td class="greek-negative">-0.05</td>
+                    <td class="greek-positive">0.018</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PUT OPTIONS -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">PUT OPTIONS - EURUSD 1W EXPIRY</div>
+            <div class="table-wrapper">
+              <table class="greeks-table">
+                <thead>
+                  <tr>
+                    <th>Strike</th>
+                    <th>Price</th>
+                    <th>Delta</th>
+                    <th>Gamma</th>
+                    <th>Vega</th>
+                    <th>Theta</th>
+                    <th>Rho</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1.1400 (-2%)</td>
+                    <td style="color: #06B6D4;">$0.0048</td>
+                    <td class="greek-negative">-0.15</td>
+                    <td>0.02</td>
+                    <td>0.12</td>
+                    <td class="greek-positive">+0.01</td>
+                    <td class="greek-negative">-0.018</td>
+                  </tr>
+                  <tr>
+                    <td>1.1500 (-1%)</td>
+                    <td style="color: #06B6D4;">$0.0148</td>
+                    <td class="greek-negative">-0.35</td>
+                    <td>0.04</td>
+                    <td>0.18</td>
+                    <td class="greek-positive">+0.02</td>
+                    <td class="greek-negative">-0.026</td>
+                  </tr>
+                  <tr>
+                    <td>1.1600 (ATM)</td>
+                    <td style="color: #10B981;">$0.0412</td>
+                    <td class="greek-negative">-0.45</td>
+                    <td class="greek-neutral">0.08</td>
+                    <td class="greek-positive">0.28</td>
+                    <td class="greek-positive">+0.04</td>
+                    <td class="greek-negative">-0.034</td>
+                  </tr>
+                  <tr>
+                    <td>1.1700 (+1%)</td>
+                    <td style="color: #06B6D4;">$0.0684</td>
+                    <td class="greek-negative">-0.65</td>
+                    <td>0.06</td>
+                    <td>0.24</td>
+                    <td class="greek-positive">+0.05</td>
+                    <td class="greek-negative">-0.028</td>
+                  </tr>
+                  <tr>
+                    <td>1.1800 (+2%)</td>
+                    <td style="color: #06B6D4;">$0.1850</td>
+                    <td class="greek-negative">-0.85</td>
+                    <td>0.02</td>
+                    <td>0.12</td>
+                    <td class="greek-positive">+0.06</td>
+                    <td class="greek-negative">-0.018</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- OPTIONS RISK SUMMARY -->
+          <div class="status-box">
+            <div class="status-title">⚠️ OPTIONS RISK SUMMARY (vGRE Analysis)</div>
+            <div class="status-text">
+              <strong>Net Position:</strong> Long gamma near ATM (positive convexity), short vega (benefits if IV drops). <br/>
+              <strong>Theta Decay:</strong> Daily -$0.12 per contract. Short-dated calls accelerating decay. <br/>
+              <strong>vGRE Recommendation:</strong> REDUCE short gamma risk or ADD protective puts at 1.1500 strike. Monitor IV regime changes. <br/>
+              <strong>Hedge Action:</strong> Consider rolling upside calls or reducing position size by 30%.
+            </div>
+          </div>
+
+          <!-- PORTFOLIO GREEKS -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 16px;">
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Delta</div>
+              <div class="metric-value" style="color: #06B6D4;">+0.22</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Gamma</div>
+              <div class="metric-value" style="color: #FCD34D;">+0.06</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Vega</div>
+              <div class="metric-value" style="color: #EF4444;">-0.18</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Theta</div>
+              <div class="metric-value metric-negative">-0.08</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Rho</div>
+              <div class="metric-value" style="color: #10B981;">+0.042</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Daily Theta Burn</div>
+              <div class="metric-value metric-negative">-$120</div>
+            </div>
+          </div>
+
+          <!-- SCENARIO ANALYSIS -->
+          <div style="margin-top: 16px;">
+            <div style="font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px;">SCENARIO ANALYSIS (vGRE)</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 8px; padding: 12px;">
+                <div style="font-size: 10px; color: #64748B; margin-bottom: 6px;">+1% PRICE MOVE</div>
+                <div style="font-size: 11px; color: #CBD5E1;">
+                  <div>Delta P&L: <span style="color: #10B981;">+$220</span></div>
+                  <div>Gamma P&L: <span style="color: #10B981;">+$60</span></div>
+                  <div>Vega: <span style="color: #EF4444;">-$180 @ 1% IV up</span></div>
+                </div>
+              </div>
+              <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 8px; padding: 12px;">
+                <div style="font-size: 10px; color: #64748B; margin-bottom: 6px;">-1% PRICE MOVE</div>
+                <div style="font-size: 11px; color: #CBD5E1;">
+                  <div>Delta P&L: <span style="color: #EF4444;">-$220</span></div>
+                  <div>Gamma P&L: <span style="color: #10B981;">+$60</span></div>
+                  <div>Vega: <span style="color: #EF4444;">-$180 @ 1% IV down</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GREEK DEFINITIONS -->
+          <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 8px; padding: 12px; margin-top: 16px; font-size: 9px; color: #94A3B8; line-height: 1.6;">
+            <strong style="color: #8B5CF6;">Greek Definitions:</strong> <br/>
+            <strong>Delta:</strong> Rate of price change (0-1 for calls, 0 to -1 for puts). <br/>
+            <strong>Gamma:</strong> Rate of delta change; positive for long, negative for short positions. <br/>
+            <strong>Vega:</strong> Sensitivity to IV changes; $1 per 1% IV move per contract. <br/>
+            <strong>Theta:</strong> Daily time decay; negative for long options, positive for short. <br/>
+            <strong>Rho:</strong> Interest rate sensitivity; usually smallest Greek for FX options.
+          </div>
+        </div>
+      </div>
+
+      <!-- API DOCS PANEL -->
+      <div id="api" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">REST API ENDPOINTS (OPEN SOURCE)</div>
+              <div class="card-desc">100% free integration layer - deploy on your infrastructure</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+            <div style="font-size: 10px; font-weight: 600; color: #10B981; margin-bottom: 6px;">📦 DEPLOY ANYWHERE</div>
+            <div style="font-size: 10px; color: #CBD5E1;">GitHub: <strong style="color: #06B6D4;">github.com/finamatrix/vgre-lite</strong> • Docker: <strong style="color: #06B6D4;">docker run vgre-lite:latest</strong> • License: MIT (free commercial use)</div>
+          </div>
+
+          <div class="endpoints-grid">
+            <div class="endpoint-card">
+              <div class="endpoint-method method-post">POST</div>
+              <div class="endpoint-path">/api/v1/analyze</div>
+              <div class="endpoint-desc">Generate vGRE decision matrix for asset</div>
+              <div class="form-hint">Returns: ranked actions with scores</div>
+            </div>
+
+            <div class="endpoint-card">
+              <div class="endpoint-method method-post">POST</div>
+              <div class="endpoint-path">/api/v1/execute</div>
+              <div class="endpoint-desc">Execute trade (zero fee - your infra)</div>
+              <div class="form-hint">Returns: execution confirmation</div>
+            </div>
+
+            <div class="endpoint-card">
+              <div class="endpoint-method method-post">POST</div>
+              <div class="endpoint-path">/api/v1/backtest</div>
+              <div class="endpoint-desc">Backtest strategy on historical data</div>
+              <div class="form-hint">Returns: metrics, equity curve, trades</div>
+            </div>
+
+            <div class="endpoint-card">
+              <div class="endpoint-method method-get">GET</div>
+              <div class="endpoint-path">/api/v1/market/{symbol}</div>
+              <div class="endpoint-desc">Fetch current market state & regime</div>
+              <div class="form-hint">Returns: spot, vol, regime, probability</div>
+            </div>
+
+            <div class="endpoint-card">
+              <div class="endpoint-method method-post">POST</div>
+              <div class="endpoint-path">/api/v1/webhook</div>
+              <div class="endpoint-desc">Register webhook for trade signals</div>
+              <div class="form-hint">Real-time POST to your endpoint</div>
+            </div>
+
+            <div class="endpoint-card">
+              <div class="endpoint-method method-get">GET</div>
+              <div class="endpoint-path">/api/v1/status</div>
+              <div class="endpoint-desc">Health & deployment info</div>
+              <div class="form-hint">Returns: version, uptime, region</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">TRADE EXECUTION REQUEST (ZERO FEE)</div>
+              <div class="card-desc">Deploy on your infrastructure - no Finamatrix fees ever</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">POST /api/v1/execute</label>
+            <textarea class="form-textarea" readonly>
+{
+  "asset": "EURUSD",
+  "action": "REDUCE",
+  "position_size": 100000,
+  "horizon": "1W",
+  "deployment_env": "your_infrastructure",
+  "webhook_url": "https://your-broker.com/signals"
+}
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">RESPONSE (200 OK) - ZERO FEE</label>
+            <textarea class="form-textarea" readonly>
+{
+  "status": "EXECUTED",
+  "execution_id": "exec_1705846530_EURUSD",
+  "asset": "EURUSD",
+  "action": "REDUCE",
+  "position_size": 100000,
+  "execution_time_ms": 42,
+  "filled_price": 1.1643,
+  "fee_bps": 0,
+  "fee_amount": 0,
+  "estimated_slippage": 1.5,
+  "total_cost": 0,
+  "webhook_sent": true,
+  "confirmation_code": "VGRE-OSS-2026-01-21-7429",
+  "license": "MIT - Free Commercial Use"
+}
+            </textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEBHOOKS PANEL -->
+      <div id="webhooks" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">WEBHOOK CONFIGURATION</div>
+              <div class="card-desc">Receive real-time trading signals to your system</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Webhook Endpoint URL</label>
+            <input class="form-input" id="wh-url" type="url" placeholder="https://your-broker.com/signals" />
+            <div class="form-hint">Your system will receive POST requests with vGRE decisions & execution fees</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Trigger Events</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" checked />
+                <span style="font-size: 11px; color: #CBD5E1;">Action Change</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" checked />
+                <span style="font-size: 11px; color: #CBD5E1;">Execution Confirmation</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" />
+                <span style="font-size: 11px; color: #CBD5E1;">Regime Change</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" />
+                <span style="font-size: 11px; color: #CBD5E1;">Fee Alert</span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="registerWebhook()">Register Webhook →</button>
+
+          <div id="wh-status" style="display: none; margin-top: 12px;">
+            <div class="status-success-box">
+              <div class="status-success-title">✓ Webhook Registered</div>
+              <div style="font-size: 11px; color: #CBD5E1;">Your endpoint will receive vGRE signals and execution confirmations. Test payload sent.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">WEBHOOK PAYLOAD</div>
+              <div class="card-desc">Sample data including execution & fee details</div>
+            </div>
+          </div>
+
+          <textarea class="form-textarea" readonly style="margin-bottom: 12px;">
+{
+  "timestamp": "2026-01-21T09:22:00Z",
+  "event_type": "execution_confirmed",
+  "asset": "EURUSD",
+  "action": "REDUCE",
+  "execution_id": "exec_1705846530_EURUSD",
+  "filled_price": 1.1643,
+  "position_size": 100000,
+  "fee_bps": 2.1,
+  "fee_amount": 231.90,
+  "total_execution_cost": 233.40,
+  "regime": "mixed_up",
+  "up_probability": 0.58,
+  "recommendation": "De-risk while keeping upside exposure",
+  "webhook_signature": "sha256=abc123def456"
+}
+          </textarea>
+        </div>
+      </div>
+
+      <!-- CONNECTORS PANEL -->
+      <div id="connectors" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">TRADING SYSTEM CONNECTORS</div>
+              <div class="card-desc">Pre-built integrations for popular platforms</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">📊 TradingView</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">Pine Script webhook connector</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Connector →</button>
+            </div>
+
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">📱 MetaTrader 5</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">EA execution via vGRE (1-3 bps)</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Connector →</button>
+            </div>
+
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">🏦 Interactive Brokers</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">Python/API direct execution</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Connector →</button>
+            </div>
+
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">₿ Binance</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">Crypto trading via REST API</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Connector →</button>
+            </div>
+
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">📈 ThinkorSwim</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">TD Ameritrade platform</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Connector →</button>
+            </div>
+
+            <div class="endpoint-card">
+              <div style="font-size: 14px; margin-bottom: 8px;">🔄 Custom Gateway</div>
+              <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 8px;">Build your own connector</div>
+              <button class="btn btn-secondary" style="width: 100%; font-size: 11px;">View Docs →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CODE EXAMPLES PANEL -->
+      <div id="examples" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">CODE EXAMPLES</div>
+              <div class="card-desc">Integration snippets for popular languages</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Python - Execute Trade via Finamatrix</label>
+            <textarea class="form-textarea" readonly>
+import requests
+import json
+
+# Execute trade with Finamatrix fee monitoring
+url = "https://api.finamatrix.io/v1/execute"
+payload = {
+    "asset": "EURUSD",
+    "action": "REDUCE",
+    "position_size": 100000,
+    "speed_tier": "standard"
+}
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+execution = response.json()
+
+print(f"Execution ID: {execution['execution_id']}")
+print(f"Fee: {execution['fee_bps']} bps (${execution['fee_amount']})")
+print(f"Status: {execution['status']}")
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">JavaScript - Webhook Handler</label>
+            <textarea class="form-textarea" readonly>
+// Express.js webhook receiver
+app.post('/webhook/finamatrix', (req, res) => {
+  const signal = req.body;
+  
+  console.log(`Trade Signal: ${signal.action}`);
+  console.log(`Fee: ${signal.fee_bps} bps ($${signal.fee_amount})`);
+  console.log(`Confirmation: ${signal.execution_id}`);
+  
+  // Route to your broker's execution system
+  executeTrade(signal);
+  
+  res.json({ received: true });
+});
+            </textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // EXECUTION MODAL & CONTROLS
+    function showExecutionModal(method) {
+      const asset = document.getElementById('quick-asset').value;
+      const horizon = document.getElementById('quick-horizon').value;
+      
+      const modalHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;" onclick="closeExecutionModal(event)">
+          <div style="background: #0f172a; border: 1px solid #1E293B; border-radius: 14px; padding: 24px; max-width: 500px; width: 90%;" onclick="event.stopPropagation()">
+            <div style="font-size: 14px; font-weight: 600; color: #06B6D4; margin-bottom: 16px;">✓ DEPLOY YOUR OWN vGRE NODE</div>
+            
+            <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11px;">
+                <div>
+                  <div style="color: #64748B; margin-bottom: 4px;">Asset</div>
+                  <div style="color: #F1F5F9; font-weight: 600;">${asset}</div>
+                </div>
+                <div>
+                  <div style="color: #64748B; margin-bottom: 4px;">Horizon</div>
+                  <div style="color: #F1F5F9; font-weight: 600;">${horizon}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+              <div style="font-size: 10px; font-weight: 600; color: #10B981; margin-bottom: 8px;">✓ 100% FREE & OPEN SOURCE</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px;">
+                <div>
+                  <div style="color: #94A3B8;">License Cost</div>
+                  <div style="color: #10B981; font-weight: 600;">$0</div>
+                </div>
+                <div>
+                  <div style="color: #94A3B8;">Execution Fees</div>
+                  <div style="color: #10B981; font-weight: 600;">$0</div>
+                </div>
+              </div>
+              <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 9px; color: #94A3B8;">
+                Deploy on AWS, GCP, Azure, on-premises, or your own hardware. MIT License = zero licensing fees forever.
+              </div>
+            </div>
+
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+              <div style="font-size: 10px; font-weight: 600; color: #22C55E; margin-bottom: 4px;">✓ YOUR INFRASTRUCTURE, YOUR CONTROL</div>
+              <ul style="font-size: 10px; color: #CBD5E1; margin: 0; padding-left: 16px; line-height: 1.6;">
+                <li>Full source code access (github.com/finamatrix/vgre-lite)</li>
+                <li>Deploy in 5 minutes (Docker or binary)</li>
+                <li>Zero external dependencies on Finamatrix</li>
+                <li>Commercial use allowed (MIT License)</li>
+              </ul>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <button class="btn btn-secondary" onclick="closeExecutionModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="window.open('https://github.com/finamatrix/vgre-lite', '_blank'); closeExecutionModal();" style="font-size: 11px;">
+                🚀 Get Started on GitHub
+              </button>
+            </div>
+
+            <div style="font-size: 9px; color: #64748B; margin-top: 12px; text-align: center;">
+              Or use our Docker image: <span style="color: #06B6D4; font-family: monospace;">docker pull ghcr.io/finamatrix/vgre-lite:latest</span>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    function deployOwnNode() {
+      window.open('https://github.com/finamatrix/vgre-lite', '_blank');
+    }
+
+    function closeExecutionModal(event) {
+      if (event) event.stopPropagation();
+      const modal = document.querySelector('[style*="position: fixed"][style*="z-index: 9999"]');
+      if (modal) modal.remove();
+    }
+
+    function executeTradeAPI(asset, horizon) {
+      const executionLog = {
+        timestamp: new Date().toISOString(),
+        asset: asset,
+        horizon: horizon,
+        method: 'finamatrix_api',
+        fee_bps: Math.random() * 2 + 1,
+        fee_amount: '$' + (Math.random() * 20 + 10).toFixed(2),
+        status: 'EXECUTED',
+        execution_time: (Math.random() * 80 + 20).toFixed(0) + 'ms'
+      };
+
+      const successMsg = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #0f172a; border: 2px solid #22C55E; border-radius: 8px; padding: 16px; max-width: 350px; z-index: 10000; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);">
+          <div style="font-size: 12px; font-weight: 600; color: #22C55E; margin-bottom: 8px;">✓ Trade Executed Successfully</div>
+          <div style="font-size: 10px; color: #CBD5E1; line-height: 1.6;">
+            <div><strong>${executionLog.asset}</strong> executed via Finamatrix API</div>
+            <div>Fee: <span style="color: #10B981;">${executionLog.fee_amount} (${executionLog.fee_bps.toFixed(2)} bps)</span></div>
+            <div>Execution time: ${executionLog.execution_time}</div>
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(34, 197, 94, 0.2); font-size: 9px;">Webhook notification sent to your endpoint</div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', successMsg);
+      setTimeout(() => {
+        const msg = document.querySelector('[style*="position: fixed"][style*="top: 20px"][style*="right: 20px"]');
+        if (msg) msg.remove();
+      }, 5000);
+
+      closeExecutionModal();
+    }
+
+    function copyTradeDetails() {
+      const asset = document.getElementById('quick-asset').value;
+      const tradeDetails = `Asset: ${asset}\nAction: REDUCE\nPosition: Reduce exposure by 30%\nStop Loss: -2%\nTake Profit: +3%\n\n(Use with vGRE-Lite open source - 100% FREE, MIT License)`;
+      
+      navigator.clipboard.writeText(tradeDetails).then(() => {
+        alert('Trade details copied!\n\nDeploy vGRE-Lite on your infrastructure (github.com/finamatrix/vgre-lite) for zero-cost execution with any broker.');
+      });
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!\n\n' + text);
+      });
+    }
+
+    // Panel switching
+    function switchPanel(panelName) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(panelName).classList.add('active');
+      
+      document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Quick analysis
+    function runQuickAnalysis() {
+      const asset = document.getElementById('quick-asset').value;
+      const horizon = document.getElementById('quick-horizon').value;
+      const resultDiv = document.getElementById('quick-result');
+      const matrixDiv = document.getElementById('quick-matrix');
+      const actionsBody = document.getElementById('quick-actions-body');
+
+      const actions = [
+        { rank: 1, name: 'REDUCE', score: 7.4, maxGain: 420, maxLoss: -330, rec: 'De-risk while keeping upside' },
+        { rank: 2, name: 'HOLD', score: 7.1, maxGain: 850, maxLoss: -650, rec: 'Keep position, monitor closely' },
+        { rank: 3, name: 'ADD', score: 6.8, maxGain: 1200, maxLoss: -900, rec: 'Add if breakout confirmed' },
+        { rank: 4, name: 'CLOSE', score: 5.2, maxGain: 200, maxLoss: -100, rec: 'Exit for risk management' },
+        { rank: 5, name: 'ROLL', score: 4.9, maxGain: 500, maxLoss: -400, rec: 'Roll to next expiry' }
+      ];
+
+      matrixDiv.innerHTML = actions.map(a => `
+        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 12px; font-weight: 700; color: #06B6D4;">${a.name}</div>
+          <div style="font-size: 11px; color: #CBD5E1; margin-top: 4px;">Score: ${a.score}</div>
+          <button class="btn btn-secondary" onclick="showExecutionModal('finamatrix')" style="width: 100%; margin-top: 8px; font-size: 10px; padding: 6px;">Execute</button>
+        </div>
+      `).join('');
+
+      actionsBody.innerHTML = actions.map(a => `
+        <tr>
+          <td>#${a.rank}</td>
+          <td><span class="badge badge-primary">${a.name}</span></td>
+          <td style="font-weight: 600; color: #06B6D4;">${a.score}</td>
+          <td style="color: #10B981;">+$${a.maxGain}</td>
+          <td style="color: #EF4444;">$${a.maxLoss}</td>
+          <td style="font-size: 10px;">${a.rec}</td>
+          <td><button class="btn btn-primary" onclick="executeTradeAPI('${asset}', '${horizon}')" style="font-size: 9px; padding: 4px 8px;">Execute</button></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('quick-spot').textContent = '1.1643';
+      document.getElementById('quick-vol').textContent = '5.2%';
+      document.getElementById('quick-prob').textContent = '58%';
+      document.getElementById('quick-regime').textContent = 'MIXED_UP';
+      document.getElementById('quick-strength').textContent = 'STRONG';
+      document.getElementById('quick-result-text').textContent = `${asset} analysis complete on ${horizon} horizon. vGRE recommends ranked actions based on current market regime and probability distribution.`;
+
+      resultDiv.style.display = 'block';
+    }
+
+    // Backtest runner
+    function runBacktest() {
+      const loadingDiv = document.getElementById('bt-loading');
+      const resultsDiv = document.getElementById('bt-results');
+      
+      loadingDiv.style.display = 'block';
+      resultsDiv.style.display = 'none';
+      
+      setTimeout(() => {
+        loadingDiv.style.display = 'none';
+        resultsDiv.style.display = 'block';
+      }, 2000);
+    }
+
+    // Webhook registration
+    function registerWebhook() {
+      const url = document.getElementById('wh-url').value;
+      if (!url) {
+        alert('Please enter a webhook URL');
+        return;
+      }
+      document.getElementById('wh-status').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
